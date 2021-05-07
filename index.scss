@@ -10,6 +10,7 @@ body{
     margin-left: auto;
     margin-right: auto;
     background-color: rgb(194, 187, 187);
+    position: relative;
     header{
         height: 100px;
         background-color: aqua;
@@ -103,10 +104,10 @@ body{
         justify-content: flex-start;
         font-size: 30px;
         padding-top: 20px;
+        flex-wrap: wrap;
         H2{
-            margin-top: auto;
-            margin-bottom: auto;
-        }
+            margin: auto;
+                    }
         .visit__container{
             min-width: 150px;
             background-color: darkgrey;

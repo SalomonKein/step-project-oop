@@ -2,7 +2,8 @@ body {
   width: 1200px;
   margin-left: auto;
   margin-right: auto;
-  background-color: #c2bbbb; }
+  background-color: #c2bbbb;
+  position: relative; }
   body header {
     height: 100px;
     background-color: aqua;
@@ -74,10 +75,10 @@ body {
   flex-direction: row;
   justify-content: flex-start;
   font-size: 30px;
-  padding-top: 20px; }
+  padding-top: 20px;
+  flex-wrap: wrap; }
   .field__visit H2 {
-    margin-top: auto;
-    margin-bottom: auto; }
+    margin: auto; }
   .field__visit .visit__container {
     min-width: 150px;
     background-color: darkgrey;

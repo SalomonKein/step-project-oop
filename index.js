@@ -1,11 +1,13 @@
 class Visit {
-  constructor(name, surname, target, date) {
+  constructor(doctor, name, surname, target, date, info) {
     this.name = name;
     this.surname = surname;
     this.target = target;
     this.date = date;
+    this.info = info;
+    this.doctor = doctor;
   }
-  createVisit(doctor) {
+  createVisit() {
     let noVisit = document.querySelector("h2");
     if (noVisit) {
       noVisit.remove();
@@ -17,147 +19,610 @@ class Visit {
     let more = document.createElement("p");
     let data = document.createElement("p");
     let target = document.createElement("p");
-    container.classList.add("visit__container", `${doctor}`);    
-    pacientName.classList.add(`visit__${doctor}`, "visit__visible", ); 
-    more.classList.add("visit__visible");    
-    more.classList.add("visit__more");
-    data.classList.add("visit__hide");    
-    target.classList.add("visit__hide");    
-    pacientName.innerHTML = `${this.name} ${this.surname}`;    
-    more.innerHTML = "view more";    
-    data.innerHTML = `${this.date}`;    
-    target.innerHTML = `${this.target}`;
+    let info = document.createElement("p");
+    let doctor = document.createElement("p");
+    container.classList.add("visit__container", `container__${this.doctor}`);
+    container.style.margin = "10px";
+    container.style.position = "relative";
+    pacientName.classList.add("visit__visible");
+    more.classList.add("visit__visible");
+    more.classList.add("visit__more", `more__${this.doctor}`);
+    more.style.cursor = "pointer";
+
+    data.classList.add("visit__hide", `${this.doctor}`);
+    target.classList.add("visit__hide", `${this.doctor}`);
+    info.classList.add("visit__hide", `${this.doctor}`);
+    doctor.classList.add("visit__visible");
+    pacientName.innerHTML = `Name: ${this.name} ${this.surname}`;
+    doctor.innerHTML = `${this.doctor}`;
+    more.innerHTML = "view more";
+    data.innerHTML = `Date: ${this.date}`;
+    target.innerHTML = `visit for: ${this.target}`;
+    info.innerHTML = `Info: ${this.info}`;
     fieldVisit.append(container);
     container.append(pacientName);
-    container.append(more);
+    container.append(doctor);
+
     container.append(data);
     container.append(target);
-    more.onclick = function () {
-        // data.classList.toggle("visit__hide");
-        // target.classList.toggle("visit__hide");
-        let pArr = document.querySelectorAll("p");
-        pArr.forEach(function(e){e.classList.toggle("visit__hide")});
+    container.append(info);
+    container.append(more);
+
+    let closeDiv = document.createElement("div");
+    closeDiv.classList.add("visit__close");
+    closeDiv.style.cssText = `position: absolute;
+    width: 20px;
+    height: 20px;
+    border: darkslategrey solid 2px;;
+    border-radius: 13px;
+    background: darkgrey;
+    top: -17px;
+    right: -17px;
+    `;
+    container.append(closeDiv);
+    let crossLine1 = document.createElement("div");
+    let crossLine2 = document.createElement("div");
+    crossLine1.style.cssText = `position: absolute;
+    width: 15px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    transform: rotate(45deg);
+    border: black solid 1px;
+    top: 9px;
+    left: 2px;
+    `;
+    crossLine2.style.cssText = `position: absolute;
+    width: 15px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    transform: rotate(-45deg);
+    border: black solid 1px;
+    top: 9px;
+    left: 2px;
+    `;
+    closeDiv.append(crossLine1);
+    closeDiv.append(crossLine2);
+    closeDiv.addEventListener("click", () => {
+      container.remove();
+      localStorage.removeItem(this.doctor);
+      if (fieldVisit.childElementCount == 0) {
+        let h2 = document.createElement("h2");
+        h2.innerHTML = "No items have been added";
+        fieldVisit.append(h2);
+      }
+    });
+
+    container.onmousedown = function (event) {
+      if (event.target == closeDiv) {
+        return;
+      }
+      if (event.target == more) {
+        return;
+      }
+      if (event.target !== container) {
+        return;
+      }
+
+      let shiftX = event.clientX - container.getBoundingClientRect().left;
+      let shiftY = event.clientY - container.getBoundingClientRect().top;
+
+      container.style.position = "absolute";
+      container.style.zIndex = 1000;
+      fieldVisit.append(container);
+
+      moveAt(event.pageX, event.pageY);
+
+      function moveAt(pageX, pageY) {
+        container.style.left = pageX - shiftX + "px";
+        container.style.top = pageY - shiftY + "px";
+      }
+
+      function onMouseMove(event) {
+        moveAt(event.pageX, event.pageY);
+        container.hidden = true;
+        let elemBelow = document.elementFromPoint(event.clientX, event.clientY);
+        container.hidden = false;
+
+        if (!elemBelow) return;
+        let curentArea = elemBelow.closest(".field__visit");
+
+        if (curentArea === "null") return;
+      }
+
+      document.addEventListener("mousemove", onMouseMove);
+
+      container.onmouseup = function () {
+        document.removeEventListener("mousemove", onMouseMove);
+        container.onmouseup = null;
+      };
+    };
+
+    container.ondragstart = function () {
+      return false;
     };
   }
-}
+  showMore() {
+    let moreShow = document.querySelector(`.more__${this.doctor}`);
+    let pArr = document.querySelectorAll(`p.${this.doctor}`);
 
-// let newVisit = new Visit("John", "Dow", "Sick and destroy", "10.01.2020")
-// let newVisit2 = new Visit("John", "Dow")
-// newVisit.createVisit();
-// newVisit2.createVisit();
+    function hideShow() {
+      if (moreShow.innerHTML == "view more") {
+        moreShow.innerHTML = "close more";
+      } else if (moreShow.innerHTML == "close more") {
+        moreShow.innerHTML = "view more";
+      }
+
+      pArr.forEach(function (e) {
+        e.classList.toggle("visit__hide");
+      });
+    }
+
+    moreShow.addEventListener("click", hideShow);
+  }
+}
 
 class VisitToTerapevt extends Visit {
-  constructor(name, surname, target, date, age) {
-    super(name, surname, target, date);
-    this.doctor = "Terapevt";
+  constructor(doctor, name, surname, target, date, info, age) {
+    super(doctor, name, surname, target, date, info);
+
     this.age = age;
+    this.doctor = doctor;
   }
   createVisit() {
-    super.createVisit(this.doctor);
-    let doctor = document.createElement("p");
-    let pointToadd = document.querySelector(`.visit__${this.doctor}`);
-    let container = document.querySelector(`.${this.doctor}`);
-    let age = document.createElement("p"); 
-    doctor.innerHTML = `${this.doctor}`;
-    doctor.classList.add("visit__visible");
-    pointToadd.append(doctor);       
-    age.innerHTML = `${this.age}`;
-    age.classList.add("visit__hide");
-    container.append(age);
+    super.createVisit();
+
+    let pointToAdd = document.querySelector(`.more__${this.doctor}`);
+    let age = document.createElement("p");
+
+    age.innerHTML = `age: ${this.age}`;
+    age.classList.add("visit__hide", `${this.doctor}`);
+    pointToAdd.before(age);
+  }
+  showMore() {
+    super.showMore();
   }
 }
-let newVisit = new VisitToTerapevt(
-  "John",
-  "Dow",
-  "Sick and destroy",
-  "10.01.2020",
-  "34"
-);
-newVisit.createVisit();
 
 class VisitToDantist extends Visit {
-  constructor(name, surname, target, date, lastDate) {
-    super(name, surname, target, date);
-    this.doctor = "Dantist";
+  constructor(doctor, name, surname, target, date, info, lastDate) {
+    super(doctor, name, surname, target, date, info);
+
     this.lastDate = lastDate;
+    this.doctor = doctor;
   }
   createVisit() {
-    super.createVisit(this.doctor);
-    let doctor = document.createElement("p");
-    let pointToadd = document.querySelector(`.visit__${this.doctor}`);
-    let container = document.querySelector(`.${this.doctor}`);
-    let lastDate = document.createElement("p"); 
-    doctor.innerHTML = `${this.doctor}`;
-    doctor.classList.add("visit__visible");
-    pointToadd.append(doctor);       
-    lastDate.innerHTML = `${this.lastDate}`;
-    lastDate.classList.add("visit__hide");
-    container.append(lastDate);
+    super.createVisit();
+
+    let pointToAdd = document.querySelector(`.more__${this.doctor}`);
+    let lastDate = document.createElement("p");
+
+    lastDate.innerHTML = `Date of last visit: ${this.lastDate}`;
+    lastDate.classList.add("visit__hide", `${this.doctor}`);
+    pointToAdd.before(lastDate);
+  }
+  showMore() {
+    super.showMore();
   }
 }
-let newVisit2 = new VisitToDantist(
-    "John12",
-    "Dow12",
-    "vqvfvq dvv fvv",
-    "14.03.2021",
-    "03.03.2005"
-  );
-  newVisit2.createVisit();
 
 class VisitToСardiologist extends Visit {
   constructor(
+    doctor,
     name,
     surname,
     target,
     date,
+    info,
     usualPressure,
     bodyWieght,
     age,
     heartDiseas
   ) {
-    super(name, surname, target, date);
-    this.doctor = "Сardiologist";
+    super(doctor, name, surname, target, date, info);
+
     this.usualPressure = usualPressure;
     this.bodyWieght = bodyWieght;
     this.age = age;
     this.heartDisease = heartDiseas;
+    this.doctor = doctor;
   }
 
   createVisit() {
-    super.createVisit(this.doctor);
-    let doctor = document.createElement("p");
-    let pointToadd = document.querySelector(`.visit__${this.doctor}`);
-    let container = document.querySelector(`.${this.doctor}`);
+    super.createVisit();
+
+    let pointToAdd = document.querySelector(`.more__${this.doctor}`);
     let usualPressure = document.createElement("p");
     let bodyWieght = document.createElement("p");
     let age = document.createElement("p");
     let heartDisease = document.createElement("p");
-    doctor.innerHTML = `${this.doctor}`;
-    doctor.classList.add("visit__visible");
-    pointToadd.append(doctor);       
-    usualPressure.innerHTML = `${this.usualPressure}`;
-    bodyWieght.innerHTML = `${this.bodyWieght}`;
-    age.innerHTML = `${this.age}`;
-    heartDisease.innerHTML = `${this.heartDisease}`;
-    usualPressure.classList.add("visit__hide");
-    bodyWieght.classList.add("visit__hide");
-    age.classList.add("visit__hide");
-    heartDisease.classList.add("visit__hide");
-    container.append(usualPressure);
-    container.append(bodyWieght);
-    container.append(age);
-    container.append(heartDisease);
+
+    usualPressure.innerHTML = `Usual Pressure: ${this.usualPressure}`;
+    bodyWieght.innerHTML = `Body mass ratio: ${this.bodyWieght}`;
+    age.innerHTML = `Age: ${this.age}`;
+    heartDisease.innerHTML = `Сardiovascular disease: ${this.heartDisease}`;
+    usualPressure.classList.add("visit__hide", `${this.doctor}`);
+    bodyWieght.classList.add("visit__hide", `${this.doctor}`);
+    age.classList.add("visit__hide", `${this.doctor}`);
+    heartDisease.classList.add("visit__hide", `${this.doctor}`);
+    pointToAdd.before(usualPressure);
+    pointToAdd.before(bodyWieght);
+    pointToAdd.before(age);
+    pointToAdd.before(heartDisease);
+  }
+  showMore() {
+    super.showMore();
   }
 }
 
-let newVisit3 = new VisitToСardiologist(
-    "John3",
-    "Dow3",
-    "bbmbj l;l ;k;l",
-    "06.04.2021",
-    "120/80",
-    "8",
-    "25",
-    "none"
-  );
-  newVisit3.createVisit();
+let buttonToCreate = document.querySelector(".button");
+
+buttonToCreate.onclick = function () {
+  let inWork = document.querySelector(".visit__modalForm");
+  if (inWork) {
+    return;
+  }
+  let formModal = document.createElement("form");
+  formModal.classList.add("visit__modalForm");
+
+  formModal.style.cssText = `position: absolute;
+    left: 35%;
+    top: 200px;
+    border: blue solid 3px;
+    min-width: 300px;
+    min-height: 300px;
+    border-radius: 5px;
+    background-color: aqua;
+    display: flex;
+    flex-direction: column;
+    justify-items: space-between;
+    padding: 5px;
+    z-index: 10;
+    `;
+  let body = document.querySelector("body");
+  body.prepend(formModal);
+  let selectList = document.createElement("select");
+  let selectTerap = document.createElement("option");
+  selectTerap.id = "terapevt";
+  selectTerap.setAttribute("name", "terapevt");
+  let selectDantist = document.createElement("option");
+  selectDantist.id = "dantist";
+  selectDantist.setAttribute("name", "dantist");
+  let selectCardio = document.createElement("option");
+  selectCardio.id = "cardiologist";
+  selectCardio.setAttribute("name", "cardiologist");
+  selectTerap.innerHTML = "Terapevt";
+  selectDantist.innerHTML = "Dantist";
+  selectCardio.innerHTML = "Сardiologist";
+  selectTerap.classList.add("option__Terapevt");
+  selectDantist.classList.add("option__Dantist");
+  selectCardio.classList.add("option__Сardiologist");
+  formModal.append(selectList);
+  selectList.append(selectTerap);
+  selectList.append(selectDantist);
+  selectList.append(selectCardio);
+
+  let closeDiv = document.createElement("div");
+  closeDiv.classList.add("modal__close");
+  closeDiv.style.cssText = `position: absolute;
+    width: 25px;
+    height: 25px;
+    border: blue solid 2px;
+    border-radius: 13px;
+    background: aqua;
+    top: -24px;
+    right: -24px;
+    `;
+  formModal.append(closeDiv);
+  let crossLine1 = document.createElement("div");
+  let crossLine2 = document.createElement("div");
+  crossLine1.style.cssText = `position: absolute;
+    width: 20px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    transform: rotate(45deg);
+    border: black solid 1px;
+    top: 12px;
+    left: 2px;
+    `;
+  crossLine2.style.cssText = `position: absolute;
+    width: 20px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    transform: rotate(-45deg);
+    border: black solid 1px;
+    top: 12px;
+    left: 2px;
+    `;
+  closeDiv.append(crossLine1);
+  closeDiv.append(crossLine2);
+
+  closeDiv.addEventListener("click", () => {
+    formModal.remove();
+  });
+
+  selectList.onclick = function (event) {
+    let test = document.querySelector(".moreInform__test");
+    if (test) {
+      let selectArr = document.querySelectorAll(".added");
+      selectArr.forEach((item) => {
+        item.remove();
+      });
+    }
+    let terapevt = document.querySelector(".option__Terapevt");
+    let dantist = document.querySelector(".option__Dantist");
+    let cardio = document.querySelector(".option__Сardiologist");
+    let ageP = document.createElement("div");
+    ageP.classList.add("added");
+    ageP.style.display = "block";
+    ageP.innerHTML = "type your age:";
+    let ageInput = document.createElement("input");
+    ageInput.id = "age";
+    ageInput.setAttribute("name", "age");
+    ageInput.required = true;
+    ageInput.classList.add("added");
+    ageInput.style.marginRight = "0px";
+    let moreInform = document.createElement("textarea");
+    moreInform.id = "info";
+    moreInform.setAttribute("name", "info");
+    moreInform.classList.add("moreInform__test", "added");
+
+    moreInform.style.maxWidth = "98%";
+    moreInform.style.height = "100px";
+    moreInform.setAttribute("maxlength", "400");
+    moreInform.setAttribute("type", "text");
+    moreInform.style.resize = "none";
+    let infoP = document.createElement("div");
+    infoP.classList.add("added");
+    infoP.innerHTML = "type more information:";
+    let name = document.createElement("input");
+    name.id = "name";
+    name.setAttribute("name", "name");
+    name.required = true;
+    name.classList.add("added");
+    let nameP = document.createElement("div");
+    nameP.classList.add("added");
+    nameP.innerHTML = "type your name:";
+    let surname = document.createElement("input");
+    surname.id = "surname";
+    surname.setAttribute("name", "surname");
+    surname.required = true;
+    surname.classList.add("added");
+    let surnameP = document.createElement("div");
+    surnameP.classList.add("added");
+    surnameP.innerHTML = "type your surname:";
+    let target = document.createElement("input");
+    target.id = "target";
+    target.setAttribute("name", "target");
+    target.required = true;
+    target.classList.add("added");
+    let targetP = document.createElement("div");
+    targetP.classList.add("added");
+    targetP.innerHTML = "type the purpose of the visit:";
+    let data = document.createElement("input");
+    data.id = "date";
+    data.setAttribute("name", "date");
+    data.required = true;
+    data.classList.add("added");
+    data.setAttribute("type", "date");
+    let dataP = document.createElement("div");
+    dataP.classList.add("added");
+    dataP.innerHTML = "select a date:";
+    let submit = document.createElement("input");
+    submit.classList.add("added", "form__submit");
+    submit.setAttribute("type", "submit");
+    submit.innerHTML = "Create";
+    let lastDate = document.createElement("input");
+    lastDate.id = "lastDate";
+    lastDate.setAttribute("name", "lastDate");
+    lastDate.required = true;
+    lastDate.classList.add("added");
+    let lastDateP = document.createElement("div");
+    lastDateP.classList.add("added");
+    lastDateP.innerHTML = "input the date of the last visit:";
+    let usualPressure = document.createElement("input");
+    usualPressure.id = "usualPressure";
+    usualPressure.setAttribute("name", "usualPressure");
+    usualPressure.required = true;
+    usualPressure.classList.add("added");
+    let usualPressureP = document.createElement("div");
+    usualPressureP.classList.add("added");
+    usualPressureP.innerHTML = "input the daily pressure:";
+    let bodyWieght = document.createElement("input");
+    bodyWieght.id = "bodyWieght";
+    bodyWieght.setAttribute("name", "bodyWieght");
+    bodyWieght.required = true;
+    bodyWieght.classList.add("added");
+    let bodyWieghtP = document.createElement("div");
+    bodyWieghtP.classList.add("added");
+    bodyWieghtP.innerHTML = "input the mass index:";
+    let heartDisease = document.createElement("input");
+    heartDisease.id = "heartDisease";
+    heartDisease.setAttribute("name", "heartDisease");
+    heartDisease.required = true;
+    heartDisease.classList.add("added");
+    let heartDiseaseP = document.createElement("div");
+    heartDiseaseP.classList.add("added");
+    heartDiseaseP.innerHTML = "input existing cardiovascular disease:";
+    let selectDoctor;
+
+    if (
+      event.target !== terapevt &&
+      event.target !== dantist &&
+      event.target !== cardio
+    ) {
+      return;
+    } else if (event.target == terapevt) {
+      selectList.after(ageInput);
+      selectList.after(ageP);
+      selectDoctor = terapevt;
+    } else if (event.target == dantist) {
+      selectList.after(lastDate);
+      selectList.after(lastDateP);
+      selectDoctor = dantist;
+    } else if (event.target == cardio) {
+      selectList.after(usualPressure);
+      selectList.after(usualPressureP);
+      selectList.after(bodyWieght);
+      selectList.after(bodyWieghtP);
+      selectList.after(heartDisease);
+      selectList.after(heartDiseaseP);
+      selectDoctor = cardio;
+    }
+
+    formModal.append(infoP);
+    selectList.after(data);
+    selectList.after(dataP);
+    selectList.after(target);
+    selectList.after(targetP);
+    selectList.after(ageInput);
+    selectList.after(ageP);
+    selectList.after(surname);
+    selectList.after(surnameP);
+    selectList.after(name);
+    selectList.after(nameP);
+    formModal.append(moreInform);
+    moreInform.after(submit);
+
+    dataProcessing(selectDoctor);
+  };
+};
+
+let countT = 1;
+let countD = 1;
+let countC = 1;
+function dataProcessing(doctor) {
+  let push = document.querySelector(".form__submit");
+  push.onclick = function (event) {
+    event.preventDefault();
+
+    const form = document.querySelector(".visit__modalForm");
+    const data = Object.fromEntries(new FormData(form).entries());
+    let dataValid = Object.fromEntries(new FormData(form).entries());
+    delete dataValid.info;
+    for (let key in dataValid) {
+      if (data[key] == "") {
+        return alert("fill in all fields");
+      }
+    }
+    data["doctor"] = doctor.id;
+
+    if (data.doctor == "terapevt") {
+      let doctorVisit = "terapevt_visit_N" + countT++;
+
+      let newVisit = new VisitToTerapevt(
+        doctorVisit,
+        data.name,
+        data.surname,
+        data.target,
+        data.date,
+        data.info,
+        data.age
+      );
+      localStorage.setItem(`${doctorVisit}`, JSON.stringify(data));
+      newVisit.createVisit();
+      newVisit.showMore();
+    } else if (data.doctor == "dantist") {
+      let doctorVisit = `dantist_visit_N${countD++}`;
+      let newVisit = new VisitToDantist(
+        doctorVisit,
+        data.name,
+        data.surname,
+        data.target,
+        data.date,
+        data.info,
+        data.lastDate
+      );
+      localStorage.setItem(`${doctorVisit}`, JSON.stringify(data));
+      newVisit.createVisit();
+      newVisit.showMore();
+    } else if (data.doctor == "cardiologist") {
+      let doctorVisit = "cardiologist_visit_N" + countC++;
+      let newVisit = new VisitToСardiologist(
+        doctorVisit,
+        data.name,
+        data.surname,
+        data.target,
+        data.date,
+        data.info,
+        data.usualPressure,
+        data.bodyWieght,
+        data.age,
+        data.heartDisease
+      );
+      localStorage.setItem(`${doctorVisit}`, JSON.stringify(data));
+      newVisit.createVisit();
+      newVisit.showMore();
+    }
+
+    let formModal = document.querySelector(".visit__modalForm");
+    formModal.remove();
+  };
+}
+
+function localCash() {
+  return Object.keys(localStorage).reduce((obj, k) => {
+    return {...obj, [k]: JSON.parse(localStorage.getItem(k))};
+  }, {});
+}
+
+let localData = localCash();
+
+let dataLocal = {};
+function filterLocalData() {
+  for (let key in localData) {
+    if (key.match(/visit/)) {
+      key = localData[key];
+      if (key.doctor == "terapevt") {
+        let doctorVisit = "terapevt_visit_N" + countT++;
+
+        let newVisit = new VisitToTerapevt(
+          doctorVisit,
+          key.name,
+          key.surname,
+          key.target,
+          key.date,
+          key.info,
+          key.age
+        );
+        newVisit.createVisit();
+        newVisit.showMore();
+      } else if (key.doctor == "dantist") {
+        let doctorVisit = `dantist_visit_N${countD++}`;
+        let newVisit = new VisitToDantist(
+          doctorVisit,
+          key.name,
+          key.surname,
+          key.target,
+          key.date,
+          key.info,
+          key.lastDate
+        );
+        newVisit.createVisit();
+        newVisit.showMore();
+      } else if (key.doctor == "cardiologist") {
+        let doctorVisit = "cardiologist_visit_N" + countC++;
+        let newVisit = new VisitToСardiologist(
+          doctorVisit,
+          key.name,
+          key.surname,
+          key.target,
+          key.date,
+          key.info,
+          key.usualPressure,
+          key.bodyWieght,
+          key.age,
+          key.heartDisease
+        );
+
+        newVisit.createVisit();
+        newVisit.showMore();
+      }
+    }
+  }
+}
+
+filterLocalData();
