@@ -1,5 +1,6 @@
 body {
   width: 1200px;
+  margin: 0;
   margin-left: auto;
   margin-right: auto;
   background-color: #c2bbbb;
@@ -91,7 +92,6 @@ body {
     padding: 10px;
     align-self: flex-start;
     left: 15px;
-    margin-left: 15px;
     font-size: 20px; }
     .field__visit .visit__container .visit__hide {
       display: none; }

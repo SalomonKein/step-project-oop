@@ -22,7 +22,7 @@ class Visit {
     let info = document.createElement("p");
     let doctor = document.createElement("p");
     container.classList.add("visit__container", `container__${this.doctor}`);
-    container.style.margin = "10px";
+    // container.style.margin = "10px";
     container.style.position = "relative";
     pacientName.classList.add("visit__visible");
     more.classList.add("visit__visible");
@@ -101,10 +101,6 @@ class Visit {
       if (event.target == more) {
         return;
       }
-      if (event.target !== container) {
-        return;
-      }
-
       let shiftX = event.clientX - container.getBoundingClientRect().left;
       let shiftY = event.clientY - container.getBoundingClientRect().top;
 
@@ -115,27 +111,27 @@ class Visit {
       moveAt(event.pageX, event.pageY);
 
       function moveAt(pageX, pageY) {
+        // if(curentArea == null) return;
         container.style.left = pageX - shiftX + "px";
         container.style.top = pageY - shiftY + "px";
       }
 
       function onMouseMove(event) {
-        moveAt(event.pageX, event.pageY);
         container.hidden = true;
         let elemBelow = document.elementFromPoint(event.clientX, event.clientY);
+        let curentArea = document.querySelector(".field__visit");
         container.hidden = false;
-
-        if (!elemBelow) return;
-        let curentArea = elemBelow.closest(".field__visit");
-
-        if (curentArea === "null") return;
+        if (elemBelow !== curentArea) {
+          return;
+        }
+        moveAt(event.pageX, event.pageY);
       }
 
       document.addEventListener("mousemove", onMouseMove);
 
-      container.onmouseup = function () {
+      document.onmouseup = function () {
         document.removeEventListener("mousemove", onMouseMove);
-        container.onmouseup = null;
+        document.onmouseup = null;
       };
     };
 
@@ -283,15 +279,21 @@ buttonToCreate.onclick = function () {
   let body = document.querySelector("body");
   body.prepend(formModal);
   let selectList = document.createElement("select");
+  selectList.id = "select__doctor";
+
+  let selectDisable = document.createElement("option");
+  selectDisable.setAttribute("selected", "selected");
+  selectDisable.setAttribute("disabled", "disabled");
   let selectTerap = document.createElement("option");
   selectTerap.id = "terapevt";
-  selectTerap.setAttribute("name", "terapevt");
+  selectTerap.setAttribute("value", "terapevt");
   let selectDantist = document.createElement("option");
   selectDantist.id = "dantist";
-  selectDantist.setAttribute("name", "dantist");
+  selectDantist.setAttribute("value", "dantist");
   let selectCardio = document.createElement("option");
   selectCardio.id = "cardiologist";
-  selectCardio.setAttribute("name", "cardiologist");
+  selectCardio.setAttribute("value", "cardiologist");
+  selectDisable.innerHTML = "Choise a doctor";
   selectTerap.innerHTML = "Terapevt";
   selectDantist.innerHTML = "Dantist";
   selectCardio.innerHTML = "Сardiologist";
@@ -299,6 +301,7 @@ buttonToCreate.onclick = function () {
   selectDantist.classList.add("option__Dantist");
   selectCardio.classList.add("option__Сardiologist");
   formModal.append(selectList);
+  selectList.append(selectDisable);
   selectList.append(selectTerap);
   selectList.append(selectDantist);
   selectList.append(selectCardio);
@@ -344,7 +347,7 @@ buttonToCreate.onclick = function () {
     formModal.remove();
   });
 
-  selectList.onclick = function (event) {
+  selectList.onchange = function doctorSelect() {
     let test = document.querySelector(".moreInform__test");
     if (test) {
       let selectArr = document.querySelectorAll(".added");
@@ -448,22 +451,17 @@ buttonToCreate.onclick = function () {
     heartDiseaseP.classList.add("added");
     heartDiseaseP.innerHTML = "input existing cardiovascular disease:";
     let selectDoctor;
-
-    if (
-      event.target !== terapevt &&
-      event.target !== dantist &&
-      event.target !== cardio
-    ) {
-      return;
-    } else if (event.target == terapevt) {
+    if (this.value == "terapevt") {
       selectList.after(ageInput);
       selectList.after(ageP);
       selectDoctor = terapevt;
-    } else if (event.target == dantist) {
+      console.log(this.value);
+    } else if (this.value == "dantist") {
       selectList.after(lastDate);
       selectList.after(lastDateP);
       selectDoctor = dantist;
-    } else if (event.target == cardio) {
+      console.log(this.value);
+    } else if (this.value == "cardiologist") {
       selectList.after(usualPressure);
       selectList.after(usualPressureP);
       selectList.after(bodyWieght);
@@ -471,6 +469,7 @@ buttonToCreate.onclick = function () {
       selectList.after(heartDisease);
       selectList.after(heartDiseaseP);
       selectDoctor = cardio;
+      console.log(this.value);
     }
 
     formModal.append(infoP);
@@ -478,8 +477,6 @@ buttonToCreate.onclick = function () {
     selectList.after(dataP);
     selectList.after(target);
     selectList.after(targetP);
-    selectList.after(ageInput);
-    selectList.after(ageP);
     selectList.after(surname);
     selectList.after(surnameP);
     selectList.after(name);
