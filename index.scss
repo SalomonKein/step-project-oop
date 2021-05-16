@@ -95,17 +95,19 @@ body{
 
     .field__visit{
         width: 100%;
-        min-height: 60vh;
+        min-height: 400px;
         border: #6666f3 solid 3px;
         border-radius: 5px;
         margin-top: 70px;
+        margin-bottom: 70px;
         background-color: #ffffff;
         display: flex;
         flex-direction: row;
         justify-content: flex-start;
         font-size: 30px;
-        padding-top: 20px;
+        padding-top: 20px;        
         flex-wrap: wrap;
+        
         H2{
             margin: auto;
                     }

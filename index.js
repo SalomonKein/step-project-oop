@@ -22,8 +22,8 @@ class Visit {
     let info = document.createElement("p");
     let doctor = document.createElement("p");
     container.classList.add("visit__container", `container__${this.doctor}`);
-    // container.style.margin = "10px";
     container.style.position = "relative";
+    container.style.marginLeft = "10px";
     pacientName.classList.add("visit__visible");
     more.classList.add("visit__visible");
     more.classList.add("visit__more", `more__${this.doctor}`);
@@ -56,8 +56,9 @@ class Visit {
     border: darkslategrey solid 2px;;
     border-radius: 13px;
     background: darkgrey;
-    top: -17px;
-    right: -17px;
+    top: 0px;
+    right: 0px;
+    cursor: pointer;
     `;
     container.append(closeDiv);
     let crossLine1 = document.createElement("div");
@@ -95,34 +96,51 @@ class Visit {
     });
 
     container.onmousedown = function (event) {
-      if (event.target == closeDiv) {
+        if (event.target == closeDiv || event.target == crossLine1 || event.target == crossLine2 || event.target == more) {
         return;
       }
-      if (event.target == more) {
-        return;
-      }
-      let shiftX = event.clientX - container.getBoundingClientRect().left;
+           
+      let shiftX = event.clientX - container.getBoundingClientRect().left + fieldVisit.getBoundingClientRect().left + 10;
       let shiftY = event.clientY - container.getBoundingClientRect().top;
 
       container.style.position = "absolute";
-      container.style.zIndex = 1000;
-      fieldVisit.append(container);
-
+      container.style.zIndex = 10;
+      
+      fieldVisit.append(container);      
       moveAt(event.pageX, event.pageY);
 
+     
+
       function moveAt(pageX, pageY) {
-        // if(curentArea == null) return;
+        
         container.style.left = pageX - shiftX + "px";
         container.style.top = pageY - shiftY + "px";
       }
 
       function onMouseMove(event) {
+        let contWidth = container.getBoundingClientRect().width;
+        let contHeight = container.getBoundingClientRect().height;
         container.hidden = true;
+        let curentArea = document.querySelector(".field__visit");        
         let elemBelow = document.elementFromPoint(event.clientX, event.clientY);
-        let curentArea = document.querySelector(".field__visit");
+        // console.log(container);
+        let curentLeft = document.elementFromPoint(event.pageX - shiftX + fieldVisit.getBoundingClientRect().left +10, event.clientY);
+        
+        let curentTop = document.elementFromPoint(event.clientX , event.clientY-shiftY);
+        
+        
+        let curentRight = document.elementFromPoint(event.pageX - shiftX + fieldVisit.getBoundingClientRect().left + 10 + contWidth, event.clientY);
+        // console.log(event.pageX - shiftX + fieldVisit.getBoundingClientRect().left + 10 + contWidth);
+        let curentBottom = document.elementFromPoint(event.clientX , event.clientY-shiftY+contHeight);
         container.hidden = false;
-        if (elemBelow !== curentArea) {
-          return;
+        // console.log(curentLeft);
+        // console.log(contBottom);
+        // console.log(curentRight);
+        // console.log(curentTop);
+
+        //if (container.getBoundingClientRect().left<=curentArea.getBoundingClientRect().left+4||container.getBoundingClientRect().top<=curentArea.getBoundingClientRect().top+4||container.getBoundingClientRect().left+container.getBoundingClientRect().width+10>=curentArea.getBoundingClientRect().left+curentArea.getBoundingClientRect().width-4||container.getBoundingClientRect().top+container.getBoundingClientRect().height>=curentArea.getBoundingClientRect().top+curentArea.getBoundingClientRect().height-4) 
+        if (curentLeft !==curentArea || curentTop !==curentArea  || curentRight !==curentArea || curentBottom !==curentArea) {
+         return
         }
         moveAt(event.pageX, event.pageY);
       }
@@ -274,7 +292,7 @@ buttonToCreate.onclick = function () {
     flex-direction: column;
     justify-items: space-between;
     padding: 5px;
-    z-index: 10;
+    z-index: 11;
     `;
   let body = document.querySelector("body");
   body.prepend(formModal);
@@ -455,12 +473,12 @@ buttonToCreate.onclick = function () {
       selectList.after(ageInput);
       selectList.after(ageP);
       selectDoctor = terapevt;
-      console.log(this.value);
+      
     } else if (this.value == "dantist") {
       selectList.after(lastDate);
       selectList.after(lastDateP);
       selectDoctor = dantist;
-      console.log(this.value);
+      
     } else if (this.value == "cardiologist") {
       selectList.after(usualPressure);
       selectList.after(usualPressureP);
@@ -469,7 +487,7 @@ buttonToCreate.onclick = function () {
       selectList.after(heartDisease);
       selectList.after(heartDiseaseP);
       selectDoctor = cardio;
-      console.log(this.value);
+      
     }
 
     formModal.append(infoP);
@@ -488,9 +506,9 @@ buttonToCreate.onclick = function () {
   };
 };
 
-let countT = 1;
-let countD = 1;
-let countC = 1;
+let countT = 0;
+let countD = 0;
+let countC = 0;
 function dataProcessing(doctor) {
   let push = document.querySelector(".form__submit");
   push.onclick = function (event) {
@@ -508,7 +526,8 @@ function dataProcessing(doctor) {
     data["doctor"] = doctor.id;
 
     if (data.doctor == "terapevt") {
-      let doctorVisit = "terapevt_visit_N" + countT++;
+      console.log("countT =", countT);
+      let doctorVisit = "terapevt_visit_N" + ++countT;
 
       let newVisit = new VisitToTerapevt(
         doctorVisit,
@@ -571,11 +590,11 @@ let localData = localCash();
 let dataLocal = {};
 function filterLocalData() {
   for (let key in localData) {
+    let doctorVisit = key;
+    
     if (key.match(/visit/)) {
       key = localData[key];
       if (key.doctor == "terapevt") {
-        let doctorVisit = "terapevt_visit_N" + countT++;
-
         let newVisit = new VisitToTerapevt(
           doctorVisit,
           key.name,
@@ -583,12 +602,14 @@ function filterLocalData() {
           key.target,
           key.date,
           key.info,
-          key.age
+          key.age          
         );
         newVisit.createVisit();
         newVisit.showMore();
-      } else if (key.doctor == "dantist") {
-        let doctorVisit = `dantist_visit_N${countD++}`;
+        console.log(doctorVisit);
+        countT = doctorVisit.slice(-1);
+        console.log(countT);
+      } else if (key.doctor == "dantist") {        
         let newVisit = new VisitToDantist(
           doctorVisit,
           key.name,
@@ -600,8 +621,8 @@ function filterLocalData() {
         );
         newVisit.createVisit();
         newVisit.showMore();
+        countD = doctorVisit.slice(-1);
       } else if (key.doctor == "cardiologist") {
-        let doctorVisit = "cardiologist_visit_N" + countC++;
         let newVisit = new VisitToСardiologist(
           doctorVisit,
           key.name,
@@ -614,7 +635,7 @@ function filterLocalData() {
           key.age,
           key.heartDisease
         );
-
+        countC = doctorVisit.slice(-1); 
         newVisit.createVisit();
         newVisit.showMore();
       }
