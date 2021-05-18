@@ -94,55 +94,70 @@ class Visit {
         fieldVisit.append(h2);
       }
     });
-    
+
     container.onmousedown = function (event) {
-        if (event.target == closeDiv || event.target == crossLine1 || event.target == crossLine2 || event.target == more) {
+      if (
+        event.target == closeDiv ||
+        event.target == crossLine1 ||
+        event.target == crossLine2 ||
+        event.target == more
+      ) {
         return;
       }
-           
-      let shiftX = event.clientX + window.pageXOffset - container.getBoundingClientRect().left + fieldVisit.getBoundingClientRect().left + 10;
+
+      let shiftX =
+        event.clientX +
+        window.pageXOffset -
+        container.getBoundingClientRect().left +
+        fieldVisit.getBoundingClientRect().left +
+        10;
       let shiftY = event.clientY - container.getBoundingClientRect().top;
 
       container.style.position = "absolute";
       container.style.zIndex = 10;
-      
-      fieldVisit.append(container);     
+
+      fieldVisit.append(container);
 
       let dragArea = {
-        top: fieldVisit.offsetTop  + shiftY,
-        right: fieldVisit.offsetLeft + shiftX + fieldVisit.offsetWidth  - 10 - container.offsetWidth,
-        bottom: fieldVisit.offsetTop +shiftY+ fieldVisit.offsetHeight - container.offsetHeight,
-        left: fieldVisit.offsetLeft + shiftX  - 10,
-      }; 
-       
-      moveAt(event.pageX, event.pageY);
+        top: fieldVisit.offsetTop + shiftY,
+        right:
+          fieldVisit.offsetLeft +
+          shiftX +
+          fieldVisit.offsetWidth -
+          10 -
+          container.offsetWidth,
+        bottom:
+          fieldVisit.offsetTop +
+          shiftY +
+          fieldVisit.offsetHeight -
+          container.offsetHeight,
+        left: fieldVisit.offsetLeft + shiftX - 10,
+      };
 
-     
+      moveAt(event.pageX, event.pageY);
 
       function moveAt(pageX, pageY) {
         container.style.left = pageX - shiftX + "px";
-        container.style.top = pageY - shiftY  + "px";
+        container.style.top = pageY - shiftY + "px";
       }
 
-      
-
-      function onMouseMove(event) {   
+      function onMouseMove(event) {
         let newLocation = {
-                x: dragArea.left,
-                y: dragArea.top
-              };
-        
-                  if (event.pageX > dragArea.right) {
-                    newLocation.x = dragArea.right;
-                  } else if (event.pageX > dragArea.left) {
-                    newLocation.x = event.pageX;
-                  }
-                  if (event.pageY > dragArea.bottom) {
-                    newLocation.y = dragArea.bottom;
-                  } else if (event.pageY > dragArea.top) {
-                    newLocation.y = event.pageY;
-                  }
-       
+          x: dragArea.left,
+          y: dragArea.top,
+        };
+
+        if (event.pageX > dragArea.right) {
+          newLocation.x = dragArea.right;
+        } else if (event.pageX > dragArea.left) {
+          newLocation.x = event.pageX;
+        }
+        if (event.pageY > dragArea.bottom) {
+          newLocation.y = dragArea.bottom;
+        } else if (event.pageY > dragArea.top) {
+          newLocation.y = event.pageY;
+        }
+
         moveAt(newLocation.x, newLocation.y);
       }
 
@@ -158,7 +173,7 @@ class Visit {
       return false;
     };
   }
-  
+
   showMore() {
     let moreShow = document.querySelector(`.more__${this.doctor}`);
     let pArr = document.querySelectorAll(`p.${this.doctor}`);
@@ -198,9 +213,7 @@ class VisitToTerapevt extends Visit {
   }
   showMore() {
     super.showMore();
-    
   }
-  
 }
 
 class VisitToDantist extends Visit {
@@ -223,7 +236,6 @@ class VisitToDantist extends Visit {
   showMore() {
     super.showMore();
   }
- 
 }
 
 class VisitToСardiologist extends Visit {
@@ -273,7 +285,6 @@ class VisitToСardiologist extends Visit {
   showMore() {
     super.showMore();
   }
-
 }
 
 let buttonToCreate = document.querySelector(".button");
@@ -479,12 +490,10 @@ buttonToCreate.onclick = function () {
       selectList.after(ageInput);
       selectList.after(ageP);
       selectDoctor = terapevt;
-      
     } else if (this.value == "dantist") {
       selectList.after(lastDate);
       selectList.after(lastDateP);
       selectDoctor = dantist;
-      
     } else if (this.value == "cardiologist") {
       selectList.after(usualPressure);
       selectList.after(usualPressureP);
@@ -493,7 +502,6 @@ buttonToCreate.onclick = function () {
       selectList.after(heartDisease);
       selectList.after(heartDiseaseP);
       selectDoctor = cardio;
-      
     }
 
     formModal.append(infoP);
@@ -532,7 +540,6 @@ function dataProcessing(doctor) {
     data["doctor"] = doctor.id;
 
     if (data.doctor == "terapevt") {
-      
       let doctorVisit = `terapevt_visit_N ${++countT}`;
 
       let newVisit = new VisitToTerapevt(
@@ -547,7 +554,6 @@ function dataProcessing(doctor) {
       localStorage.setItem(`${doctorVisit}`, JSON.stringify(data));
       newVisit.createVisit();
       newVisit.showMore();
-  
     } else if (data.doctor == "dantist") {
       let doctorVisit = `dantist_visit_N ${++countD}`;
       let newVisit = new VisitToDantist(
@@ -562,7 +568,6 @@ function dataProcessing(doctor) {
       localStorage.setItem(`${doctorVisit}`, JSON.stringify(data));
       newVisit.createVisit();
       newVisit.showMore();
-    
     } else if (data.doctor == "cardiologist") {
       let doctorVisit = `cardiologist_visit_N ${++countC}`;
       let newVisit = new VisitToСardiologist(
@@ -580,7 +585,6 @@ function dataProcessing(doctor) {
       localStorage.setItem(`${doctorVisit}`, JSON.stringify(data));
       newVisit.createVisit();
       newVisit.showMore();
-  
     }
 
     let formModal = document.querySelector(".visit__modalForm");
@@ -600,7 +604,7 @@ let dataLocal = {};
 function filterLocalData() {
   for (let key in localData) {
     let doctorVisit = key;
-    
+
     if (key.match(/visit/)) {
       key = localData[key];
       if (key.doctor == "terapevt") {
@@ -611,15 +615,15 @@ function filterLocalData() {
           key.target,
           key.date,
           key.info,
-          key.age          
+          key.age
         );
         newVisit.createVisit();
         newVisit.showMore();
-     
+
         console.log(doctorVisit);
         countT = doctorVisit.slice(-1);
         console.log(countT);
-      } else if (key.doctor == "dantist") {        
+      } else if (key.doctor == "dantist") {
         let newVisit = new VisitToDantist(
           doctorVisit,
           key.name,
@@ -631,7 +635,7 @@ function filterLocalData() {
         );
         newVisit.createVisit();
         newVisit.showMore();
-      
+
         countD = doctorVisit.slice(-1);
       } else if (key.doctor == "cardiologist") {
         let newVisit = new VisitToСardiologist(
@@ -646,10 +650,9 @@ function filterLocalData() {
           key.age,
           key.heartDisease
         );
-        countC = doctorVisit.slice(-1); 
+        countC = doctorVisit.slice(-1);
         newVisit.createVisit();
         newVisit.showMore();
-      
       }
     }
   }
