@@ -94,55 +94,56 @@ class Visit {
         fieldVisit.append(h2);
       }
     });
-
+    
     container.onmousedown = function (event) {
         if (event.target == closeDiv || event.target == crossLine1 || event.target == crossLine2 || event.target == more) {
         return;
       }
            
-      let shiftX = event.clientX - container.getBoundingClientRect().left + fieldVisit.getBoundingClientRect().left + 10;
+      let shiftX = event.clientX + window.pageXOffset - container.getBoundingClientRect().left + fieldVisit.getBoundingClientRect().left + 10;
       let shiftY = event.clientY - container.getBoundingClientRect().top;
 
       container.style.position = "absolute";
       container.style.zIndex = 10;
       
-      fieldVisit.append(container);      
+      fieldVisit.append(container);     
+
+      let dragArea = {
+        top: fieldVisit.offsetTop  + shiftY,
+        right: fieldVisit.offsetLeft + shiftX + fieldVisit.offsetWidth  - 10 - container.offsetWidth,
+        bottom: fieldVisit.offsetTop +shiftY+ fieldVisit.offsetHeight - container.offsetHeight,
+        left: fieldVisit.offsetLeft + shiftX  - 10,
+      }; 
+       
       moveAt(event.pageX, event.pageY);
 
      
 
       function moveAt(pageX, pageY) {
-        
         container.style.left = pageX - shiftX + "px";
-        container.style.top = pageY - shiftY + "px";
+        container.style.top = pageY - shiftY  + "px";
       }
 
-      function onMouseMove(event) {
-        let contWidth = container.getBoundingClientRect().width;
-        let contHeight = container.getBoundingClientRect().height;
-        container.hidden = true;
-        let curentArea = document.querySelector(".field__visit");        
-        let elemBelow = document.elementFromPoint(event.clientX, event.clientY);
-        // console.log(container);
-        let curentLeft = document.elementFromPoint(event.pageX - shiftX + fieldVisit.getBoundingClientRect().left +10, event.clientY);
-        
-        let curentTop = document.elementFromPoint(event.clientX , event.clientY-shiftY);
-        
-        
-        let curentRight = document.elementFromPoint(event.pageX - shiftX + fieldVisit.getBoundingClientRect().left + 10 + contWidth, event.clientY);
-        // console.log(event.pageX - shiftX + fieldVisit.getBoundingClientRect().left + 10 + contWidth);
-        let curentBottom = document.elementFromPoint(event.clientX , event.clientY-shiftY+contHeight);
-        container.hidden = false;
-        // console.log(curentLeft);
-        // console.log(contBottom);
-        // console.log(curentRight);
-        // console.log(curentTop);
+      
 
-        //if (container.getBoundingClientRect().left<=curentArea.getBoundingClientRect().left+4||container.getBoundingClientRect().top<=curentArea.getBoundingClientRect().top+4||container.getBoundingClientRect().left+container.getBoundingClientRect().width+10>=curentArea.getBoundingClientRect().left+curentArea.getBoundingClientRect().width-4||container.getBoundingClientRect().top+container.getBoundingClientRect().height>=curentArea.getBoundingClientRect().top+curentArea.getBoundingClientRect().height-4) 
-        if (curentLeft !==curentArea || curentTop !==curentArea  || curentRight !==curentArea || curentBottom !==curentArea) {
-         return
-        }
-        moveAt(event.pageX, event.pageY);
+      function onMouseMove(event) {   
+        let newLocation = {
+                x: dragArea.left,
+                y: dragArea.top
+              };
+        
+                  if (event.pageX > dragArea.right) {
+                    newLocation.x = dragArea.right;
+                  } else if (event.pageX > dragArea.left) {
+                    newLocation.x = event.pageX;
+                  }
+                  if (event.pageY > dragArea.bottom) {
+                    newLocation.y = dragArea.bottom;
+                  } else if (event.pageY > dragArea.top) {
+                    newLocation.y = event.pageY;
+                  }
+       
+        moveAt(newLocation.x, newLocation.y);
       }
 
       document.addEventListener("mousemove", onMouseMove);
@@ -157,6 +158,7 @@ class Visit {
       return false;
     };
   }
+  
   showMore() {
     let moreShow = document.querySelector(`.more__${this.doctor}`);
     let pArr = document.querySelectorAll(`p.${this.doctor}`);
@@ -196,7 +198,9 @@ class VisitToTerapevt extends Visit {
   }
   showMore() {
     super.showMore();
+    
   }
+  
 }
 
 class VisitToDantist extends Visit {
@@ -219,6 +223,7 @@ class VisitToDantist extends Visit {
   showMore() {
     super.showMore();
   }
+ 
 }
 
 class VisitToСardiologist extends Visit {
@@ -268,6 +273,7 @@ class VisitToСardiologist extends Visit {
   showMore() {
     super.showMore();
   }
+
 }
 
 let buttonToCreate = document.querySelector(".button");
@@ -526,8 +532,8 @@ function dataProcessing(doctor) {
     data["doctor"] = doctor.id;
 
     if (data.doctor == "terapevt") {
-      console.log("countT =", countT);
-      let doctorVisit = "terapevt_visit_N" + ++countT;
+      
+      let doctorVisit = `terapevt_visit_N ${++countT}`;
 
       let newVisit = new VisitToTerapevt(
         doctorVisit,
@@ -541,8 +547,9 @@ function dataProcessing(doctor) {
       localStorage.setItem(`${doctorVisit}`, JSON.stringify(data));
       newVisit.createVisit();
       newVisit.showMore();
+  
     } else if (data.doctor == "dantist") {
-      let doctorVisit = `dantist_visit_N${countD++}`;
+      let doctorVisit = `dantist_visit_N ${++countD}`;
       let newVisit = new VisitToDantist(
         doctorVisit,
         data.name,
@@ -555,8 +562,9 @@ function dataProcessing(doctor) {
       localStorage.setItem(`${doctorVisit}`, JSON.stringify(data));
       newVisit.createVisit();
       newVisit.showMore();
+    
     } else if (data.doctor == "cardiologist") {
-      let doctorVisit = "cardiologist_visit_N" + countC++;
+      let doctorVisit = `cardiologist_visit_N ${++countC}`;
       let newVisit = new VisitToСardiologist(
         doctorVisit,
         data.name,
@@ -572,6 +580,7 @@ function dataProcessing(doctor) {
       localStorage.setItem(`${doctorVisit}`, JSON.stringify(data));
       newVisit.createVisit();
       newVisit.showMore();
+  
     }
 
     let formModal = document.querySelector(".visit__modalForm");
@@ -606,6 +615,7 @@ function filterLocalData() {
         );
         newVisit.createVisit();
         newVisit.showMore();
+     
         console.log(doctorVisit);
         countT = doctorVisit.slice(-1);
         console.log(countT);
@@ -621,6 +631,7 @@ function filterLocalData() {
         );
         newVisit.createVisit();
         newVisit.showMore();
+      
         countD = doctorVisit.slice(-1);
       } else if (key.doctor == "cardiologist") {
         let newVisit = new VisitToСardiologist(
@@ -638,6 +649,7 @@ function filterLocalData() {
         countC = doctorVisit.slice(-1); 
         newVisit.createVisit();
         newVisit.showMore();
+      
       }
     }
   }
