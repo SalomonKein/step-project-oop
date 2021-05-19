@@ -540,7 +540,7 @@ function dataProcessing(doctor) {
     data["doctor"] = doctor.id;
 
     if (data.doctor == "terapevt") {
-      let doctorVisit = `terapevt_visit_N ${++countT}`;
+      let doctorVisit = `terapevt_visit_N${++countT}`;
 
       let newVisit = new VisitToTerapevt(
         doctorVisit,
@@ -555,7 +555,7 @@ function dataProcessing(doctor) {
       newVisit.createVisit();
       newVisit.showMore();
     } else if (data.doctor == "dantist") {
-      let doctorVisit = `dantist_visit_N ${++countD}`;
+      let doctorVisit = `dantist_visit_N${++countD}`;
       let newVisit = new VisitToDantist(
         doctorVisit,
         data.name,
@@ -569,7 +569,7 @@ function dataProcessing(doctor) {
       newVisit.createVisit();
       newVisit.showMore();
     } else if (data.doctor == "cardiologist") {
-      let doctorVisit = `cardiologist_visit_N ${++countC}`;
+      let doctorVisit = `cardiologist_visit_N${++countC}`;
       let newVisit = new VisitToСardiologist(
         doctorVisit,
         data.name,
