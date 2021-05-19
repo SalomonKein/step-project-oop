@@ -600,13 +600,14 @@ function localCash() {
 
 let localData = localCash();
 
-let dataLocal = {};
+let dataLocal = Object.fromEntries(Object.entries(localData).sort());
+
 function filterLocalData() {
-  for (let key in localData) {
+  for (let key in dataLocal) {
     let doctorVisit = key;
 
     if (key.match(/visit/)) {
-      key = localData[key];
+      key = dataLocal[key];
       if (key.doctor == "terapevt") {
         let newVisit = new VisitToTerapevt(
           doctorVisit,
@@ -620,9 +621,7 @@ function filterLocalData() {
         newVisit.createVisit();
         newVisit.showMore();
 
-        console.log(doctorVisit);
         countT = doctorVisit.slice(-1);
-        console.log(countT);
       } else if (key.doctor == "dantist") {
         let newVisit = new VisitToDantist(
           doctorVisit,
