@@ -1,9 +1,5 @@
 to start the project you need
 
-Change working dirextory:
-
-$ cd step-project-oop 
-
 install project file on your pc
 
 $ git clone https://github.com/SalomonKein/step-project-oop.git
